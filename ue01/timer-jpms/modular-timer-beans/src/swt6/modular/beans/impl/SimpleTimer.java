@@ -1,11 +1,15 @@
-package swt6.nonmodular.beans;
+package swt6.modular.beans.impl;
+
+import swt6.modular.beans.Timer;
+import swt6.modular.beans.TimerEvent;
+import swt6.modular.beans.TimerListener;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SimpleTimer {
+public class SimpleTimer implements Timer {
     private int tickInterval = 1000;
     private int numberTicks = 1;
     private int tickCount = 0;
@@ -18,6 +22,7 @@ public class SimpleTimer {
         this.numberTicks = numberTicks;
     }
 
+    @Override
     public void start() {
         if (isRunning()) {
             throw new IllegalStateException("Timer is already running");
@@ -49,6 +54,7 @@ public class SimpleTimer {
         listeners.forEach((l) -> l.expired(timerEvent));
     }
 
+    @Override
     public void stop() {
         stopTimer.set(true);
     }
@@ -69,14 +75,17 @@ public class SimpleTimer {
         this.numberTicks = numberTicks;
     }
 
+    @Override
     public boolean isRunning() {
         return tickerThread.get() != null;
     }
 
+    @Override
     public void addTimerListener(final TimerListener listener) {
         listeners.add(listener);
     }
 
+    @Override
     public void removeTimerListener(final TimerListener listener) {
         listeners.remove(listener);
     }
