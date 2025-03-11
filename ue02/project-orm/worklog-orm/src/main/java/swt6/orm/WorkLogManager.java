@@ -4,9 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
-import swt6.orm.domain.Address;
-import swt6.orm.domain.Employee;
-import swt6.orm.domain.LogbookEntry;
+import swt6.orm.domain.*;
 import swt6.orm.util.JpaUtil;
 
 import java.time.LocalDate;
@@ -74,7 +72,15 @@ public class WorkLogManager {
                     System.out.println("- Address: " + employee.getAddress());
                 }
 
+                if (!employee.getPhones().isEmpty()) {
+                    System.out.println("- Phones: ");
+                    employee.getPhones().forEach(phone -> {
+                        System.out.println("\t" + phone);
+                    });
+                }
+
                 if (!employee.getLogbookEntries().isEmpty()) {
+                    System.out.println("- Logbook Entries: ");
                     employee.getLogbookEntries().forEach(log -> {
                         System.out.println("\t" + log);
                     });
@@ -85,17 +91,30 @@ public class WorkLogManager {
 
     private static Employee addLogbookEntries(Employee employee, LogbookEntry... entries) {
         return JpaUtil.executeInTransaction(entityManager -> {
-            Arrays.stream(entries).forEach(entry -> {
-                employee.addLogbookEntry(entry);
-            });
+            Arrays.stream(entries).forEach(employee::addLogbookEntry);
+            return entityManager.merge(employee);
+        });
+    }
+
+    private static Employee addPhones(Employee employee, String... phones) {
+        return JpaUtil.executeInTransaction(entityManager -> {
+            Arrays.stream(phones).forEach(employee::addPhones);
             return entityManager.merge(employee);
         });
     }
 
     public static void main(String[] args) {
-        Employee employee1 = new Employee("Susi", "Müller", LocalDate.of(1998, 1, 1));
+        PermanentEmployee pe1 = new PermanentEmployee("Susi", "Müller", LocalDate.of(1998, 1, 1));
+        pe1.setSalary(5000.0);
+        Employee employee1 = pe1;
         employee1.setAddress(new Address("4232", "Hagenberg City", "Softwarepark 13"));
-        Employee employee2 = new Employee("Franz", "Strolz", LocalDate.of(2000, 1, 1));
+
+        TemporaryEmployee te1 = new TemporaryEmployee("Franz", "Strolz", LocalDate.of(2000, 1, 1));
+        te1.setHourlyRate(150.0);
+        te1.setRenter("Dynatrace");
+        te1.setStartDate(LocalDate.now());
+        te1.setEndDate(LocalDate.now().plusMonths(10));
+        Employee employee2 = te1;
         employee2.setAddress(new Address("1010", "Wien", "Partypulverstraße 69"));
 
         var today = LocalDate.now();
@@ -115,9 +134,14 @@ public class WorkLogManager {
             employee1.setLastName("Müller-Huber");
             employee1 = saveEntity(employee1);
 
+            System.out.println("------------- Add Logbook Entry -------------");
+            employee1 = addLogbookEntries(employee1, logbookEntry1, logbookEntry2);
+            employee2 = addLogbookEntries(employee2, logbookEntry3);
+
+            System.out.println("------------- Add Phones -------------");
+            employee2 = addPhones(employee2, "1234", "5678");
+
             System.out.println("------------- list Employees -------------");
-            addLogbookEntries(employee1, logbookEntry1, logbookEntry2);
-            addLogbookEntries(employee2, logbookEntry3);
             listEmployees();
         } catch (Exception e) {
             e.printStackTrace();

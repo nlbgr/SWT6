@@ -11,6 +11,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+//@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(discriminatorType = DiscriminatorType.CHAR) // nur bei SINGLE_TABLE notwendig
+@DiscriminatorValue(value = "E") // nur bei SINGLE_TABLE notwendig
 @NoArgsConstructor
 @Getter
 @Setter
@@ -32,6 +37,10 @@ public class Employee {
     @ToString.Exclude
     private Address address;
 
+    @ElementCollection
+    @Column(name = "PHONE_NUMBER")
+    private Set<String> phones = new HashSet<>();
+
     public Employee(final String firstName, final String lastName, final LocalDate dateOfBirth) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -45,5 +54,9 @@ public class Employee {
 
         logbookEntries.add(entry);
         entry.setEmployee(this);
+    }
+
+    public void addPhones(final String phone) {
+        this.phones.add(phone);
     }
 }
