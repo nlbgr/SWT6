@@ -75,7 +75,7 @@ public class WorkLogManager {
             employee1.setLastName("Müller-Huber");
             employee1 = saveEntity(employee1);
         } catch (Exception e) {
-            e.printStackTrace();
+            JpaUtil.closeEntityManagerFactory();
         }
     }
 }

@@ -19,7 +19,7 @@ public class JpaUtil {
         return emFactory;
     }
 
-    public static void closeEntityManagerFactory(final EntityManagerFactory emf) {
+    public static void closeEntityManagerFactory() {
         if (emFactory != null) {
             emFactory.close();
             emFactory = null;
