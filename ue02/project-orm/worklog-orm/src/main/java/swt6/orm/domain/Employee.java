@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -28,7 +30,11 @@ public class Employee {
     private String lastName;
     private LocalDate dateOfBirth;
 
-    @OneToMany (cascade = CascadeType.ALL, mappedBy = "employee")
+    @OneToMany (cascade = CascadeType.ALL, mappedBy = "employee"
+    //        , fetch = FetchType.EAGER)
+            , fetch = FetchType.LAZY)
+    //@Fetch(FetchMode.JOIN)
+    @Fetch(FetchMode.SELECT)
     @ToString.Exclude
     private Set<LogbookEntry> logbookEntries = new HashSet<>();
 

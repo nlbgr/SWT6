@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +23,10 @@ public class LogbookEntry {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.EAGER)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    //@Fetch(FetchMode.SELECT)
     @ToString.Exclude
     private Employee employee;
 

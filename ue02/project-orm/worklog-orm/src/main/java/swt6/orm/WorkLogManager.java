@@ -10,6 +10,8 @@ import swt6.orm.util.JpaUtil;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class WorkLogManager {
     private static void insertEmployee1(final Employee employee) {
@@ -103,6 +105,76 @@ public class WorkLogManager {
         });
     }
 
+    private static <T> Optional<T> findAny(Class<T> clazz) {
+        return JpaUtil.executeInTransaction(entityManager -> {
+            return entityManager.createQuery("SELECT e FROM %s e".formatted(clazz.getSimpleName()), clazz).setMaxResults(1).getResultList().stream().findAny();
+        });
+    }
+
+    private static void testFetchingStrategies() {
+        System.out.println("######################################");
+
+        System.out.println("################# preparation work #####################");
+        var employee = findAny(Employee.class);
+        var logbookEntry = findAny(LogbookEntry.class);
+        if (employee.isEmpty() || logbookEntry.isEmpty()) {
+            return;
+        }
+
+        System.out.println("################# LogbookEntry -> Employee #####################");
+        // Annotations sind bei Beziehung im LogbookEntry
+        // default = eager + join
+        //
+        // eager + join → 1 Statement mit Join für alles
+        // lazy + join → ist extrem sinnbefreit, nix machen diese
+        //
+        // eager + select → 2 eigene Statements direkt hintereinander
+        // lazy + select → 2 eigene Statements aber Statements werden erst ausgeführt wenn die Daten wirklich benötigt werden. Wenn nie benötigt wird nie geladen
+        JpaUtil.executeInTransaction(entityManager -> {
+            Long entryId = logbookEntry.get().getId();
+
+            System.out.println("##> Fetching LogbookEntry...");
+            LogbookEntry logbookEntry1 = entityManager.find(LogbookEntry.class, entryId);
+            System.out.println("##> Fetched LogbookEntry");
+
+            System.out.println("##> Fetching associated Employee...");
+            Employee employee1 = logbookEntry1.getEmployee();
+            System.out.println("##> Fetched associated Employee");
+
+            System.out.println("##> Accessing Employee...");
+            System.out.println(employee1);
+            System.out.println("##> Accessed Employee");
+        });
+
+        System.out.println("################# Employee -> LogbookEntry #####################");
+        // Annotations sind bei Beziehung im Employee
+        // default = lazy + select
+        //
+        // eager + join → 1 Statement mit Join für alles
+        // lazy + join → ist extrem sinnbefreit, nix machen diese
+        //
+        // eager + select → 2 eigene Statements direkt hintereinander
+        // lazy + select → 2 eigene Statements aber Statements werden erst ausgeführt wenn die Daten wirklich benötigt werden. Wenn nie benötigt wird nie geladen
+
+        JpaUtil.executeInTransaction(entityManager -> {
+            Long employeeId = logbookEntry.get().getId();
+
+            System.out.println("##> Fetching Employee...");
+            Employee employee2 = entityManager.find(Employee.class, employeeId);
+            System.out.println("##> Fetched Employee");
+
+            System.out.println("##> Fetching associated LogbookEntries...");
+            Set<LogbookEntry> logbookEntries = employee2.getLogbookEntries();
+            System.out.println("##> Fetched associated LogbookEntries");
+
+            System.out.println("##> Accessing LogbookEntries...");
+            logbookEntries.forEach(System.out::println);
+            System.out.println("##> Accessed LogbookEntries");
+        });
+
+        System.out.println("######################################");
+    }
+
     public static void main(String[] args) {
         PermanentEmployee pe1 = new PermanentEmployee("Susi", "Müller", LocalDate.of(1998, 1, 1));
         pe1.setSalary(5000.0);
@@ -143,6 +215,9 @@ public class WorkLogManager {
 
             System.out.println("------------- list Employees -------------");
             listEmployees();
+
+            System.out.println("------------- testFetchingStrategies -------------");
+            testFetchingStrategies();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
