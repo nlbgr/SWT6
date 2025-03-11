@@ -21,7 +21,7 @@ public class Employee {
     private String lastName;
     private LocalDate dateOfBirth;
 
-    public Employee(String firstName, String lastName, LocalDate dateOfBirth) {
+    public Employee(final String firstName, final String lastName, final LocalDate dateOfBirth) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
