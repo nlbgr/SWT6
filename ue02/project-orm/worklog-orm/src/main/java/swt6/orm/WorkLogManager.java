@@ -1,5 +1,7 @@
 package swt6.orm;
 
+import com.querydsl.core.QueryFactory;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
@@ -175,6 +177,39 @@ public class WorkLogManager {
         System.out.println("######################################");
     }
 
+    public static void listLogbookEntriesOfEmployee(Employee employee) {
+        JpaUtil.executeInTransaction(entityManager -> {
+            entityManager.createQuery("SELECT le FROM LogbookEntry le WHERE le.employee = :employee", LogbookEntry.class)
+                    .setParameter("employee", employee)
+                    .getResultList()
+                    .forEach(System.out::println);
+        });
+    }
+
+    public static void loadEmployeesWithLogbookEntries() {
+        // Wird verwendet um direkt eager die Entries mitzuladen
+        JpaUtil.executeInTransaction(entityManager -> {
+            entityManager.createQuery("SELECT e FROM Employee e JOIN FETCH e.logbookEntries", Employee.class)
+                    .getResultList()
+                    .forEach(employee -> {
+                        System.out.println(employee);
+                        employee.getLogbookEntries().forEach(entry -> {
+                            System.out.println("\t" + entry);
+                        });
+                    });
+
+        });
+    }
+
+    public static void listLogbookEntriesOfEmployeeQueryDsl(Employee employee) {
+        JpaUtil.executeInTransaction(entityManager -> {
+            JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+            QLogbookEntry logbookEntry = QLogbookEntry.logbookEntry;
+
+            queryFactory.selectFrom(logbookEntry).where(logbookEntry.employee.eq(employee)).fetch().forEach(System.out::println);
+        });
+    }
+
     public static void main(String[] args) {
         PermanentEmployee pe1 = new PermanentEmployee("Susi", "Müller", LocalDate.of(1998, 1, 1));
         pe1.setSalary(5000.0);
@@ -218,6 +253,15 @@ public class WorkLogManager {
 
             System.out.println("------------- testFetchingStrategies -------------");
             testFetchingStrategies();
+
+            System.out.println("------------- listLogbookEntriesOfEmployee -------------");
+            listLogbookEntriesOfEmployee(employee1);
+
+            System.out.println("------------- loadEmployeesWithLogbookEntries -------------");
+            loadEmployeesWithLogbookEntries();
+
+            System.out.println("------------- listLogbookEntriesOfEmployeeQueryDsl -------------");
+            listLogbookEntriesOfEmployeeQueryDsl(employee1);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
