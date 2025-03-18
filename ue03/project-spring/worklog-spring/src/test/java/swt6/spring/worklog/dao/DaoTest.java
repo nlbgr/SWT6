@@ -18,59 +18,59 @@ import static swt6.util.PrintUtil.printTitle;
 
 public class DaoTest {
 
-  private void createSchema(DataSource ds, String ddlScript) {
-    try {
-      DbScriptRunner scriptRunner = new DbScriptRunner(ds.getConnection());
-      InputStream is = DaoTest.class.getClassLoader().getResourceAsStream(ddlScript);
-      if (is == null) throw new IllegalArgumentException(
-        String.format("File %s not found in classpath.", ddlScript));
-      scriptRunner.runScript(new InputStreamReader(is));
+    private void createSchema(DataSource ds, String ddlScript) {
+        try {
+            DbScriptRunner scriptRunner = new DbScriptRunner(ds.getConnection());
+            InputStream is = DaoTest.class.getClassLoader().getResourceAsStream(ddlScript);
+            if (is == null) throw new IllegalArgumentException(
+                    String.format("File %s not found in classpath.", ddlScript));
+            scriptRunner.runScript(new InputStreamReader(is));
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
     }
-    catch (SQLException | IOException e) {
-      e.printStackTrace();
+
+    @Test
+    public void testJdbc() {
+
+        try (AbstractApplicationContext factory =
+                     new AnnotationConfigApplicationContext(JdbcConfig.class)) {
+
+            printTitle("create schema", 60, '-');
+            createSchema(factory.getBean("dataSource", DataSource.class),
+                    "worklog-db-schema.sql");
+
+            //
+            // get reference to implementation of EmployeeDao
+            //
+            var emplDao = factory.getBean(EmployeeDao.class);
+
+            printTitle("insert employee", 60, '-');
+            Employee empl1 = new Employee("Josefine", "Mutzenbacher", LocalDate.of(1970, 10, 26));
+            emplDao.insert(empl1);
+            System.out.println("empl1 = " + (empl1 == null ? (null) : empl1.toString()));
+
+            printTitle("update employee", 60, '-');
+            empl1.setFirstName("Jaquira");
+            empl1 = emplDao.merge(empl1);
+            System.out.println("empl1 = " + (empl1 == null ? (null) : empl1.toString()));
+        }
     }
-  }
 
-  @Test
-  public void testJdbc() {
+    @SuppressWarnings("Duplicates")
+    @Test
+    public void testJpa() {
+        try (AbstractApplicationContext factory =
+                     new AnnotationConfigApplicationContext()) {
 
-    try (AbstractApplicationContext factory =
-      new AnnotationConfigApplicationContext(JdbcConfig.class)) {
-
-      printTitle("create schema", 60, '-');
-			createSchema(factory.getBean("dataSource", DataSource.class),
-                                   "worklog-db-schema.sql");
-
-			//
-			// get reference to implementation of EmployeeDao
-			//
-
-//      printTitle("insert employee", 60, '-');
-//      Employee empl1 = new Employee("Josefine", "Mutzenbacher", LocalDate.of(1970, 10, 26));
-//      emplDao.insert(empl1);
-//      System.out.println("empl1 = " + (empl1 == null ? (null) : empl1.toString()));
-//
-//      printTitle("update employee", 60, '-');
-//      empl1.setFirstName("Jaquira");
-//      empl1 = emplDao.merge(empl1);
-//      System.out.println("empl1 = " + (empl1 == null ? (null) : empl1.toString()));
-		}
-  }
-
-  @SuppressWarnings("Duplicates")
-  @Test
-  public void testJpa() {
-    try (AbstractApplicationContext factory =
-           new AnnotationConfigApplicationContext()) {
-
+        }
     }
-  }
 
-  @Test
-  public void testSpringData() {
-    try (AbstractApplicationContext factory =
-             new AnnotationConfigApplicationContext()) {
+    @Test
+    public void testSpringData() {
+        try (AbstractApplicationContext factory =
+                     new AnnotationConfigApplicationContext()) {
 
-		}
-  }
+        }
+    }
 }
