@@ -4,28 +4,34 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:annotation-config />
+    <context:annotation-config /> <!-- Erlaubt annotation für injections configuration -->
+    <context:component-scan base-package="swt6.spring.basics.ioc.logic.xmlconfig, swt6.spring.basics.ioc.util" /> <!-- scanned packages nach den Annotationen um XML-Konfig zu ersetzten -->
 
+    <!--
     <bean id="consoleLogger"
           class="swt6.spring.basics.ioc.util.ConsoleLogger">
     </bean>
 
-    <!--
     <bean id="fileLogger"
           class="swt6.spring.basics.ioc.util.FileLogger"
           destroy-method="close">
         <property name="fileName" value="log.txt" />
     </bean>
+    -->
 
+    <!--
     <bean id="worklogService-setter-injected"
+          init-method="init"
           class="swt6.spring.basics.ioc.logic.xmlconfig.WorkLogServiceImpl">
         <property name="logger" ref="fileLogger" />
     </bean>
     -->
 
+    <!--
     <bean id="worklogService-ctor-injected"
           class="swt6.spring.basics.ioc.logic.xmlconfig.WorkLogServiceImpl">
         <constructor-arg ref="consoleLogger" />
     </bean>
+    -->
 
 </beans>

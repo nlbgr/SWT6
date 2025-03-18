@@ -1,25 +1,22 @@
-package swt6.spring.basics.ioc.logic.xmlconfig;
+package swt6.spring.basics.ioc.logic.javaconfig;
 
 import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import swt6.spring.basics.ioc.domain.Employee;
 import swt6.spring.basics.ioc.logic.WorkLogService;
 import swt6.spring.basics.ioc.util.Log;
 import swt6.spring.basics.ioc.util.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("worklogService")
 public class WorkLogServiceImpl implements WorkLogService {
   private Map<Long, Employee> employees = new HashMap<>();
 
-  //@Setter
   @Autowired(required = true) // darf nur genau eine Impl passend zu dem typ geben
   @Log(Log.LoggerType.CONSOLE)
   private Logger logger;
@@ -31,12 +28,6 @@ public class WorkLogServiceImpl implements WorkLogService {
     employees.put(3L, new Employee(3L, "Bjarne", "Stroustrup"));
   }
 
-  // Notwendig für Field Inejction
-//  public WorkLogServiceImpl() {
-//    init(); // Nicht notwendig wegen init-method="init" im config
-//  }
-
-  // Notwendig für Ctor Inejction
   @Autowired(required = true)
   public WorkLogServiceImpl(@Log(Log.LoggerType.CONSOLE) Logger logger) {
     this.logger = logger;

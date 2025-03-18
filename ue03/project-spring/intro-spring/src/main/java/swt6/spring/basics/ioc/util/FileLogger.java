@@ -1,16 +1,23 @@
 package swt6.spring.basics.ioc.util;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.inject.Named;
+import org.springframework.stereotype.Component;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 
+@Component
+@Log(Log.LoggerType.FILE)
 public class FileLogger implements Logger {
 
   private PrintWriter writer;
+  private String fileName = "log.txt";
 
   public FileLogger() {
-    //init("log.txt");
+    init(fileName);
   }
 
   public FileLogger(String fileName) {
@@ -18,6 +25,10 @@ public class FileLogger implements Logger {
   }
 
   private void init(String fileName) {
+    if (writer != null) {
+      writer.close();
+    }
+
     try {
       writer = new PrintWriter(new FileOutputStream(fileName));
     }
@@ -35,6 +46,7 @@ public class FileLogger implements Logger {
     writer.flush();
   }
 
+  @PreDestroy
   public void close() {
     writer.close();
   }
