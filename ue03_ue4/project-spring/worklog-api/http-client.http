@@ -1,0 +1,13 @@
+@host =  http://localhost:8080
+
+### Access hello endpoint
+GET {{host}}/worklog/hello
+
+### get all employees
+GET {{host}}/worklog/employees
+
+### get employee by id success
+GET {{host}}/worklog/employees/1
+
+### get employee by id fail
+GET {{host}}/worklog/employees/999

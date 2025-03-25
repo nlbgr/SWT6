@@ -14,7 +14,7 @@ import swt6.spring.worklog.dao.EmployeeDao;
 import swt6.spring.worklog.dao.EmployeeRepository;
 import swt6.spring.worklog.dao.jpa.EmployeeDaoJpa;
 import swt6.spring.worklog.logic.WorkLogService;
-import swt6.spring.worklog.logic.impl.WorkLogServiceImpl1;
+import swt6.spring.worklog.logic.WorkLogServiceImpl1;
 import swt6.spring.worklog.ui.WorkLogViewModel;
 import swt6.spring.worklog.ui.WorkLogViewModelImpl;
 import swt6.util.advice.JpaInterceptor;

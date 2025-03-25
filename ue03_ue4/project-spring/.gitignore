@@ -42,3 +42,4 @@ build/
 
 ### DB ###
 **/data/
+derby.log

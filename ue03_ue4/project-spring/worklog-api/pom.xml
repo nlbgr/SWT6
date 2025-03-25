@@ -53,20 +53,22 @@
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
     </dependency>
-
-     <!--
-     <dependency>
-      <groupId>swt6.spring</groupId>
-      <artifactId>worklog-spring</artifactId>
-      <version>1.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-reload4j</artifactId>
-        </exclusion>
-      </exclusions>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
-    -->
+
+    <dependency>
+     <groupId>swt6.spring</groupId>
+     <artifactId>worklog-spring</artifactId>
+     <version>1.0</version>
+     <exclusions>
+       <exclusion>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-reload4j</artifactId>
+       </exclusion>
+     </exclusions>
+   </dependency>
   </dependencies>
 
   <build>

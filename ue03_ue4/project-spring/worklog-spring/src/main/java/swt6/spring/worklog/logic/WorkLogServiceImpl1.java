@@ -1,10 +1,9 @@
-package swt6.spring.worklog.logic.impl;
+package swt6.spring.worklog.logic;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import swt6.spring.worklog.dao.EmployeeDao;
 import swt6.spring.worklog.domain.Employee;
-import swt6.spring.worklog.logic.WorkLogService;
 
 import java.util.List;
 import java.util.Optional;
