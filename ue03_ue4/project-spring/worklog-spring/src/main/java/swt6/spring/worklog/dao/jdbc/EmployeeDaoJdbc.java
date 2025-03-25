@@ -2,22 +2,38 @@ package swt6.spring.worklog.dao.jdbc;
 
 import lombok.Setter;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import swt6.spring.worklog.dao.EmployeeDao;
 import swt6.spring.worklog.domain.Employee;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public class EmployeeDaoJdbc implements EmployeeDao {
+
+    protected static class EmployeeRowMapper implements RowMapper<Employee> {
+
+        @Override
+        public Employee mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Employee employee = new Employee(
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getDate(4).toLocalDate()
+            );
+            employee.setId(rs.getLong("id"));
+
+            return employee;
+        }
+    }
 
 //  @Setter
 //  private DataSource dataSource;
@@ -26,13 +42,23 @@ public class EmployeeDaoJdbc implements EmployeeDao {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Employee findById(Long aLong) {
-        return null;
+    public Optional<Employee> findById(Long id) {
+        final String sql = "SELECT ID, FIRSTNAME, LASTNAME, DATEOFBIRTH FROM EMPLOYEE WHERE ID = ?";
+
+        var employeeList = jdbcTemplate.query(sql, new Object[]{id}, new EmployeeRowMapper());
+
+        if (employeeList.size() > 1) {
+            throw new IncorrectResultSizeDataAccessException(1, employeeList.size());
+        }
+
+        return employeeList.stream().findFirst();
     }
 
     @Override
     public List<Employee> findAll() {
-        return List.of();
+        final String sql = "SELECT ID, FIRSTNAME, LASTNAME, DATEOFBIRTH FROM EMPLOYEE";
+
+        return jdbcTemplate.query(sql, new EmployeeRowMapper());
     }
 
     // Version 1: Data access code without Spring
